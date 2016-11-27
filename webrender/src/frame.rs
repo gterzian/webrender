@@ -387,6 +387,8 @@ impl Frame {
 
         let mut scrolled_a_layer = false;
         for (layer_id, layer) in self.layers.iter_mut() {
+            let mut layer_delta = delta;
+
             if layer_id.pipeline_id != scroll_layer_id.pipeline_id {
                 continue;
             }
@@ -400,16 +402,16 @@ impl Frame {
             if layer.scrolling.started_bouncing_back && phase == ScrollEventPhase::Move(false) {
                 continue;
             }
-
+            
             let overscroll_amount = layer.overscroll_amount();
             let overscrolling = CAN_OVERSCROLL && (overscroll_amount.width != 0.0 ||
                                                    overscroll_amount.height != 0.0);
             if overscrolling {
                 if overscroll_amount.width != 0.0 {
-                    delta.x /= overscroll_amount.width.abs()
+                    layer_delta.x /= overscroll_amount.width.abs()
                 }
                 if overscroll_amount.height != 0.0 {
-                    delta.y /= overscroll_amount.height.abs()
+                    layer_delta.y /= overscroll_amount.height.abs()
                 }
             }
 
@@ -420,7 +422,7 @@ impl Frame {
             let original_layer_scroll_offset = layer.scrolling.offset;
 
             if layer.content_size.width > layer.local_viewport_rect.size.width {
-                layer.scrolling.offset.x = layer.scrolling.offset.x + delta.x;
+                layer.scrolling.offset.x = layer.scrolling.offset.x + layer_delta.x;
                 if is_unscrollable || !CAN_OVERSCROLL {
                     layer.scrolling.offset.x = layer.scrolling.offset.x.min(0.0);
                     layer.scrolling.offset.x =
@@ -430,7 +432,7 @@ impl Frame {
             }
 
             if layer.content_size.height > layer.local_viewport_rect.size.height {
-                layer.scrolling.offset.y = layer.scrolling.offset.y + delta.y;
+                layer.scrolling.offset.y = layer.scrolling.offset.y + layer_delta.y;
                 if is_unscrollable || !CAN_OVERSCROLL {
                     layer.scrolling.offset.y = layer.scrolling.offset.y.min(0.0);
                     layer.scrolling.offset.y =
@@ -442,7 +444,7 @@ impl Frame {
             if phase == ScrollEventPhase::Start || phase == ScrollEventPhase::Move(true) {
                 layer.scrolling.started_bouncing_back = false
             } else if overscrolling &&
-                    ((delta.x < 1.0 && delta.y < 1.0) || phase == ScrollEventPhase::End) {
+                    ((layer_delta.x < 1.0 && layer_delta.y < 1.0) || phase == ScrollEventPhase::End) {
                 layer.scrolling.started_bouncing_back = true;
                 layer.scrolling.bouncing_back = true
             }
