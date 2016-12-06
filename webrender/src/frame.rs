@@ -368,7 +368,7 @@ impl Frame {
                 // Switch layer if movement originated in a new gesture,
                 // from a non root layer in overscroll.
                 let current_layer = self.layers.get_mut(&scroll_layer_id).unwrap();
-                current_layer.scrolling.should_handoff_scroll
+                current_layer.scrolling.should_handoff_scroll && non_root_overscroll
             },
             ScrollEventPhase::End => {
                 // clean-up when gesture ends.
@@ -402,7 +402,7 @@ impl Frame {
             if layer.scrolling.started_bouncing_back && phase == ScrollEventPhase::Move(false) {
                 continue;
             }
-            
+
             let overscroll_amount = layer.overscroll_amount();
             let overscrolling = CAN_OVERSCROLL && (overscroll_amount.width != 0.0 ||
                                                    overscroll_amount.height != 0.0);
