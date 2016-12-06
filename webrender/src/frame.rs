@@ -331,7 +331,7 @@ impl Frame {
 
     /// Returns true if any layers actually changed position or false otherwise.
     pub fn scroll(&mut self,
-                  mut delta: Point2D<f32>,
+                  delta: Point2D<f32>,
                   cursor: Point2D<f32>,
                   phase: ScrollEventPhase)
                   -> bool {
